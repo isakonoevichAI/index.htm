@@ -1,0 +1,205 @@
+body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+		font-family: 'Arial', sans-serif;
+        justify-content: center;
+        align-items: center;
+        background-image: url('image.png');
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+    }
+
+    #chat-container {
+        background-color: rgba(50, 70, 128, 0.3);
+        padding: 20px;
+        border-radius: 10px; 
+        height: 40vmax;
+        width: 90vmin;
+        transition: height 0.7s ease, width 0.7s ease 0.7s, border-radius 1s; /* Плавный переход для высоты и ширины */
+        overflow: hidden; /* Скрыть переполнение, если необходимо */
+        position: relative; /* Для корректного позиционирования textarea */
+    }
+
+
+    #chat-container.expanded {
+        height: calc(100vh - 40px);
+        width: calc(100vw - 40px);
+        border-radius: 0; /* Убираем скругление */
+        overflow: hidden; /* Скрыть переполнение, если необходимо */
+    }
+
+    #input-area {
+    margin-top: 20px; /* Отступ сверху */
+    margin: 0 30px; /* Убираем отступ сверху и снизу, оставляем по бокам */
+    display: flex; /* Используем flexbox для выравнивания */
+    align-items: center; /* Вертикальное выравнивание по центру */
+    transition: margin-bottom 0.7s ease, width 0.7s ease; /* Плавное изменение отступа и ширины */
+    position: absolute; /* Позволяет переместить textarea вниз */
+    bottom: 20px; /* Прикрепить к нижней грани контейнера */
+    left: 0; /* Выравнивание по левому краю */
+    right: 0; /* Выравнивание по правому краю */
+}
+
+
+ textarea {
+        width: -webkit-fill-available; /* Автоматическая ширина */
+        height: 3em; /* Высота текстового поля */
+        word-wrap: break-word; /* Перенос слов */
+        resize: none; /* Запрет изменения размера текстового поля */
+    padding: 10px; /* Отступы внутри поля ввода */
+    border-radius: 10px; /* Скругление углов */
+    background-color: #f0f0f0; /* Цвет фона */
+    font-family: 'Arial', sans-serif; /* Шрифт */
+    font-size: 16px; /* Размер шрифта */
+    margin-right: 10px; /* Отступ справа, чтобы отделить кнопку */
+}
+
+.logo {
+        width: 5vmax; /* Ширина изображения */
+        height: 5vmax; /* Высота изображения */        
+        transition: transform 0.7s ease; /* Плавный переход для перемещения */
+		transtion-delay: 0.7s;
+    }
+
+
+#logo-left {
+	transition: transform 0.7s ease 0.7s; /* Плавный переход для перемещения */
+		}
+		
+#logo-right{
+transition: transform 0.7s ease 0.7s; /* Плавный переход для перемещения */
+		}
+		
+h1 {
+	transition: opacity 1s ease;
+	}
+#send-button {
+    background-color: #ccc; /* Цвет кнопки по умолчанию */
+    color: white; /* Цвет текста */
+    border: none; /* Убираем границу */
+    border-radius: 10px; /* Скругление углов */
+    padding: 10px 15px; /* Отступы внутри кнопки */
+    cursor: pointer; /* Курсор в виде указателя */
+    transition: background-color 0.3s ease; /* Плавный переход цвета */
+	height: calc(3em + 30px);
+	width: 40px;
+}
+#chat-container.expanded h1 {
+		opacity: 0;
+		}
+#chat-container.expanded #logo-left {
+
+        transform: translateX(-40vw);
+    }
+
+#chat-container.expanded #logo-right {
+        transform: translateX(40vw);
+    }
+/* Контейнер для каждого сообщения */
+.message {
+    max-width: 75%;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 16px;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+/* Сообщение пользователя (слева) */
+/* Сообщение пользователя (справа) */
+.user-message {
+    background-color: #d1e7dda0;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+    text-align: right;
+}
+
+/* Сообщение нейросети (слева) */
+.bot-message {
+    background-color: #f0f0f0a0;
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+    text-align: left;
+}
+
+
+/* Контейнер для сообщения */
+#message-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: calc(100% - 120px - 3em - 50px);
+    overflow-y: auto;
+    padding: 10px;
+}
+
+#message-container .message:first-child {
+    font-family: monospace; /* Выбор шрифта monospace */
+	font-size: 18px;
+	font-weight: bold;
+}
+
+/* Стилизация для полос прокрутки на всей странице */
+::-webkit-scrollbar {
+    width: 8px; /* Ширина ползунка */
+}
+
+::-webkit-scrollbar-track {
+    background: transparent; /* Цвет фона полосы прокрутки */
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 112, 140, 0.5); /* Цвет ползунка */
+    border-radius: 10px; /* Скругление углов ползунка */
+}
+
+/* Убираем стрелки на ползунке */
+::-webkit-scrollbar-button {
+    display: none; /* Скрываем кнопки со стрелками */
+}
+
+.message {
+    opacity: 0; /* Начальное состояние — невидимое */
+    transform: translateY(10px); /* Начальное положение — немного ниже */
+    transition: opacity 0.5s ease, transform 0.5s ease; /* Плавный переход */
+}
+
+.message.visible {
+    opacity: 1; /* Полная видимость */
+    transform: translateY(0); /* Восстановление начального положения */
+}
+.isakonoevich, .ai, .isaAI{
+	font-family: Comic Sans MS;
+	font-weight: bold;
+	font-size: 24px;
+	text-shadow: 2px 2px 5px white;
+	transition: font-size 0.7s ease 1s;
+}
+.isakonoevich,.ai {
+	display:inline;
+}
+.ai {
+	color: red;
+}
+.isaAI{
+	position: absolute;
+	top: 0;
+	align-items: center;
+	z-index:10;
+	transition: top 0.7s ease 1s;
+}
+
+#chat-container.expanded .isaAI {
+	top: calc(5vmax - 24px);
+}
+		
+#chat-container.expanded .isakonoevich {
+	font-size: 48px;
+}
+#chat-container.expanded .ai {
+	font-size: 48px;
+}
