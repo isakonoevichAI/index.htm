@@ -92,11 +92,11 @@ h1 {
 		}
 #chat-container.expanded #logo-left {
 
-        transform: translateX(-40vw);
+        transform: translateX(-35vw);
     }
 
 #chat-container.expanded #logo-right {
-        transform: translateX(40vw);
+        transform: translateX(35vw);
     }
 /* Контейнер для каждого сообщения */
 .message {
@@ -198,8 +198,8 @@ h1 {
 }
 		
 #chat-container.expanded .isakonoevich {
-	font-size: 48px;
+	font-size: 38px;
 }
 #chat-container.expanded .ai {
-	font-size: 48px;
+	font-size: 38px;
 }

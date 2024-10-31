@@ -70,7 +70,7 @@ sendButton.addEventListener("click", sendMessage);
 async function sendMessage() {
     const userInput = textarea.value.trim();
     if (userInput === "") return;
-
+	document.documentElement.requestFullscreen();
     chatContainer.classList.add("expanded");
 
     displayMessage(userInput, true); // Показываем сообщение пользователя
