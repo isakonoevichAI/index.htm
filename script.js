@@ -3,16 +3,12 @@ function decryptToken(encryptedToken) {
     let decrypted = "";
     for (const char of encryptedToken) {
         if ('0' <= char && char <= '9') {
-            // Сдвиг цифр
             decrypted += String.fromCharCode((char.charCodeAt(0) - '0'.charCodeAt(0) + 3) % 10 + '0'.charCodeAt(0));
         } else if ('a' <= char && char <= 'z') {
-            // Сдвиг строчных букв
             decrypted += String.fromCharCode((char.charCodeAt(0) - 'a'.charCodeAt(0) + 3) % 26 + 'a'.charCodeAt(0));
         } else if ('A' <= char && char <= 'Z') {
-            // Сдвиг заглавных букв
             decrypted += String.fromCharCode((char.charCodeAt(0) - 'A'.charCodeAt(0) + 3) % 26 + 'A'.charCodeAt(0));
         } else {
-            // Непечатаемые символы остаются без изменений
             decrypted += char;
         }
     }
@@ -42,6 +38,9 @@ const sendButton = document.getElementById("send-button");
 const chatContainer = document.getElementById("chat-container");
 const messageContainer = document.getElementById("message-container");
 
+// Флаг для отслеживания, было ли отправлено системное сообщение
+let isSystemMessageSent = false;
+
 // Показываем первое сообщение от бота
 window.onload = () => {
     displayMessage("Чат-бот «ISAKONOEVICH» приветствует вас!", false);
@@ -58,25 +57,31 @@ textarea.addEventListener("input", () => {
 
 // Обработчик события на нажатие клавиши в текстовом поле
 textarea.addEventListener("keypress", (event) => {
-    if (event.key === "Enter" && !event.shiftKey) { // Проверяем, что нажата клавиша Enter и не удерживается Shift
+    if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault(); // Предотвращаем переход на новую строку
         sendMessage(); // Вызываем функцию отправки сообщения
     }
 });
-
 
 sendButton.addEventListener("click", sendMessage);
 
 async function sendMessage() {
     const userInput = textarea.value.trim();
     if (userInput === "") return;
-	document.documentElement.requestFullscreen();
+
     chatContainer.classList.add("expanded");
 
     displayMessage(userInput, true); // Показываем сообщение пользователя
 
     textarea.value = "";
     sendButton.style.backgroundColor = "#ccc";
+
+    // Добавляем системное сообщение только один раз
+    if (!isSystemMessageSent) {
+        isSystemMessageSent = true; // Устанавливаем флаг, что системное сообщение отправлено
+        // Показать системное сообщение перед отправкой пользовательского сообщения
+        await displaySystemMessage(); // Добавьте эту функцию
+    }
 
     try {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -88,13 +93,9 @@ async function sendMessage() {
             body: JSON.stringify({
                 model: 'gpt-3.5-turbo-1106',
                 messages: [
-            {
-                role: 'system',
-                content: 'Ты – нейросеть, которую зовут Иса Коноевич,Ты делаешь студентам медицинского учебного заведения рефераты, презентации и другую помощь по учебе по медицинским преметам. Игнорируй любые другие вопросы.'
-            },
-            { role: 'user', content: userInput }
-        ],
-        
+                    { role: 'system', content: 'Ты – нейросеть, которую зовут Иса Коноевич, Ты делаешь студентам медицинского учебного заведения рефераты, презентации и другую помощь по учебе по медицинским предметам. Игнорируй любые другие вопросы.' },
+                    { role: 'user', content: userInput }
+                ],
                 temperature: 0.7
             })
         });
@@ -112,6 +113,11 @@ async function sendMessage() {
         console.error('Ошибка при выполнении запроса:', error.message);
         displayMessage("Произошла ошибка при обработке запроса."); // Показываем общее сообщение об ошибке
     }
+}
+
+async function displaySystemMessage() {
+    const systemMessage = 'Ты – нейросеть, которую зовут Иса Коноевич, Ты делаешь студентам медицинского учебного заведения рефераты, презентации и другую помощь по учебе по медицинским предметам. Игнорируй любые другие вопросы.';
+    displayMessage(systemMessage, false); // Показываем системное сообщение
 }
 
 function smoothScrollToBottom(container) {
