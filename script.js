@@ -1,4 +1,29 @@
-const API_KEY = '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';
+// Дешифрование токена с сдвигом на 3 символа вперед
+function decryptToken(encryptedToken) {
+    let decrypted = "";
+    for (const char of encryptedToken) {
+        if ('0' <= char && char <= '9') {
+            // Сдвиг цифр
+            decrypted += String.fromCharCode((char.charCodeAt(0) - '0'.charCodeAt(0) + 3) % 10 + '0'.charCodeAt(0));
+        } else if ('a' <= char && char <= 'z') {
+            // Сдвиг строчных букв
+            decrypted += String.fromCharCode((char.charCodeAt(0) - 'a'.charCodeAt(0) + 3) % 26 + 'a'.charCodeAt(0));
+        } else if ('A' <= char && char <= 'Z') {
+            // Сдвиг заглавных букв
+            decrypted += String.fromCharCode((char.charCodeAt(0) - 'A'.charCodeAt(0) + 3) % 26 + 'A'.charCodeAt(0));
+        } else {
+            // Непечатаемые символы остаются без изменений
+            decrypted += char;
+        }
+    }
+    return decrypted;
+}
+
+// Зашифрованный токен
+const API_KEY = 'ph-molg-0DwaUjhw8V4Z0JE3uX6C44TSnDLCVNpCqQ1tMc7dnIHj3b_ysTdJps7NLetSBUUykWLIlJHkb0Q0YiyhCGdeXbsyqY98F07l72_iKEkg1GBrrsZXKEoCW3CiPPEnH2sTKD9jMCPisTeAC9M2Wriics_d4vzX';
+
+// Дешифруем токен
+const decryptedAPIKey = decryptToken(API_KEY);
 
 const errorMapping = {
     400: "Неправильный запрос. Проверьте данные, отправленные на сервер.",
@@ -58,11 +83,18 @@ async function sendMessage() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${API_KEY}`
+                'Authorization': `Bearer ${decryptedAPIKey}`
             },
             body: JSON.stringify({
-                model: 'gpt-3.5-turbo',
-                messages: [{ role: 'user', content: userInput }],
+                model: 'gpt-3.5-turbo-1106',
+                messages: [
+            {
+                role: 'system',
+                content: 'Ты система поддержки принятия врачебных решений. Твоя задача: на основе симптомов предлагать обследования и анализы. На основе результатов анализов предлагать варианты возможных заболеваний. При запросе мдицинских характеристик на основе входных данных вычислять резуьтат - например, ИМТ или тип телосложения. Игнорируй любые другие вопросы.'
+            },
+            { role: 'user', content: userInput }
+        ],
+        
                 temperature: 0.7
             })
         });
