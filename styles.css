@@ -16,7 +16,7 @@ body {
         background-color: rgba(50, 70, 128, 0.3);
         padding: 20px;
         border-radius: 10px; 
-        height: 40vmax;
+        height: 60vmax;
         width: 90vmin;
         transition: height 0.7s ease, width 0.7s ease 0.7s, border-radius 1s; /* Плавный переход для высоты и ширины */
         overflow: hidden; /* Скрыть переполнение, если необходимо */
