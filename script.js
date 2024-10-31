@@ -86,10 +86,7 @@ async function sendMessage() {
             body: JSON.stringify({
                 model: 'gpt-3.5-turbo-1106',
                 messages: [
-					{ 
-                        role: 'system', 
-                        content: 'Ты – нейросеть, которую зовут Иса Коноевич и ты сделан для студентов КГМА. При ответе на большинство вопросов делай акцент на медицинскую тематику.'
-                    },
+					
 					{ role: 'user', content: userInput }
                 ],
                 temperature: 0.7
