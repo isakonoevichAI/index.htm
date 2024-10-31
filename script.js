@@ -38,40 +38,40 @@ const sendButton = document.getElementById("send-button");
 const chatContainer = document.getElementById("chat-container");
 const messageContainer = document.getElementById("message-container");
 
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${decryptedAPIKey}`
-            },
-            body: JSON.stringify({
-                model: 'gpt-3.5-turbo-1106',
-                messages: [
-                    { 
-                        role: 'system', 
-                        content: 'Ты – нейросеть, которую зовут Иса Коноевич и ты сделан для студентов КГМА. Ты помогаешь студентам высшего учебного заведения делать рефераты, презентации и другую помощь по учебе. При ответе на большинство вопросов делай акцент на медицинскую тематику. Игнориуй вопросы про пограммирование, ссылаясь на то что ты создан для студентов-медиков.' 
-                    },
-                ],
-                temperature: 0.7
-            })
-        });
+// document.addEventListener('DOMContentLoaded', async () => {
+    // try {
+        // const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            // method: 'POST',
+            // headers: {
+                // 'Content-Type': 'application/json',
+                // 'Authorization': `Bearer ${decryptedAPIKey}`
+            // },
+            // body: JSON.stringify({
+                // model: 'gpt-3.5-turbo-1106',
+                // messages: [
+                    // { 
+                        // role: 'system', 
+                        // content: 'Запомни! Ты – нейросеть, которую зовут Иса Коноевич и ты сделан для студентов КГМА. Ты помогаешь студентам высшего учебного заведения делать рефераты, презентации и другую помощь по учебе. При ответе на большинство вопросов делай акцент на медицинскую тематику. Игнорируй в этом чате любые вопросы, связанные с программированием.' 
+                    // },
+                // ],
+                // temperature: 0.7
+            // })
+        // });
 
-        if (!response.ok) {
-            const errorMessage = errorMapping[response.status] || "Неизвестная ошибка. Пожалуйста, попробуйте позже.";
-            displayMessage(errorMessage); // Показываем сообщение об ошибке
-            return; // Завершаем выполнение функции
-        }
+        // if (!response.ok) {
+            // const errorMessage = errorMapping[response.status] || "Неизвестная ошибка. Пожалуйста, попробуйте позже.";
+            // displayMessage(errorMessage); // Показываем сообщение об ошибке
+            // return; // Завершаем выполнение функции
+        // }
 
-        const data = await response.json();
-        displayMessage(data.choices[0].message.content); // Показываем ответ бота
+        // const data = await response.json();
+        // displayMessage(data.choices[0].message.content); // Показываем ответ бота
 
-    } catch (error) {
-        console.error('Ошибка при выполнении запроса:', error.message);
-        displayMessage("Произошла ошибка при обработке запроса."); // Показываем общее сообщение об ошибке
-    }
-});
+    // } catch (error) {
+        // console.error('Ошибка при выполнении запроса:', error.message);
+        // displayMessage("Произошла ошибка при обработке запроса."); // Показываем общее сообщение об ошибке
+    // }
+// });
 
 
 // Показываем первое сообщение от бота
@@ -121,6 +121,10 @@ async function sendMessage() {
             body: JSON.stringify({
                 model: 'gpt-3.5-turbo-1106',
                 messages: [
+					{ 
+                        role: 'system', 
+                        content: 'Запомни! Ты – нейросеть, которую зовут Иса Коноевич и ты сделан для студентов КГМА. Ты помогаешь студентам высшего учебного заведения делать рефераты, презентации и другую помощь по учебе. При ответе на большинство вопросов делай акцент на медицинскую тематику.'
+                    },
 					{ role: 'user', content: userInput }
                 ],
                 temperature: 0.7
