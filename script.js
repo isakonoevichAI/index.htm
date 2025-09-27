@@ -37,6 +37,7 @@ const textarea = document.getElementById("user-input");
 const sendButton = document.getElementById("send-button");
 const chatContainer = document.getElementById("chat-container");
 const messageContainer = document.getElementById("message-container");
+const chatHistory = []; // Массив для хранения диалога
 
 
 // Показываем первое сообщение от бота
@@ -63,18 +64,37 @@ textarea.addEventListener("keypress", (event) => {
 
 sendButton.addEventListener("click", sendMessage);
 
+
+let typingIndicator;
+
+function showTyping() {
+    typingIndicator = document.createElement("div");
+    typingIndicator.className = "message bot-message visible";
+    typingIndicator.innerHTML = `<div class="loader"></div>`;
+    messageContainer.appendChild(typingIndicator);
+
+    smoothScrollToBottom(messageContainer);
+}
+
+function hideTyping() {
+    if (typingIndicator) {
+        messageContainer.removeChild(typingIndicator);
+        typingIndicator = null;
+    }
+}
+
 async function sendMessage() {
     const userInput = textarea.value.trim();
     if (userInput === "") return;
 
     chatContainer.classList.add("expanded");
-
-    displayMessage(userInput, true); // Показываем сообщение пользователя
-
+    displayMessage(userInput, true); // сообщение пользователя
     textarea.value = "";
     sendButton.style.backgroundColor = "#ccc";
 
-       
+    chatHistory.push({ role: 'user', content: userInput }); // добавляем в историю
+
+    showTyping(); // показываем "печатает..."
 
     try {
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -85,26 +105,29 @@ async function sendMessage() {
             },
             body: JSON.stringify({
                 model: 'gpt-3.5-turbo-1106',
-                messages: [
-					
-					{ role: 'user', content: userInput }
-                ],
+                messages: chatHistory,
                 temperature: 0.7
             })
         });
 
+        hideTyping(); // скрываем индикатор
+
         if (!response.ok) {
-            const errorMessage = errorMapping[response.status] || "Неизвестная ошибка. Пожалуйста, попробуйте позже.";
-            displayMessage(errorMessage); // Показываем сообщение об ошибке
-            return; // Завершаем выполнение функции
+            const errorMessage = errorMapping[response.status] || "Неизвестная ошибка. Попробуйте позже.";
+            displayMessage(errorMessage);
+            return;
         }
 
         const data = await response.json();
-        displayMessage(data.choices[0].message.content); // Показываем ответ бота
+        const botReply = data.choices[0].message.content;
+        displayMessage(botReply);
+
+        chatHistory.push({ role: 'assistant', content: botReply }); // сохраняем ответ бота
 
     } catch (error) {
+        hideTyping();
         console.error('Ошибка при выполнении запроса:', error.message);
-        displayMessage("Произошла ошибка при обработке запроса."); // Показываем общее сообщение об ошибке
+        displayMessage("Произошла ошибка при обработке запроса.");
     }
 }
 
