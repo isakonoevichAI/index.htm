@@ -184,7 +184,9 @@ function smoothScrollToBottom(container) {
 function displayMessage(content, isUserMessage = false) {
     const msg = document.createElement("div");
     msg.className = `message ${isUserMessage ? "user-message" : "bot-message"}`;
-    msg.innerText = content;
+
+    // Парсим markdown в HTML
+    msg.innerHTML = marked.parse(content);
 
     messageContainer.appendChild(msg);
 
