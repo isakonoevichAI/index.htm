@@ -1,4 +1,6 @@
-// Дешифрование токена с сдвигом на 3 символа вперед
+// -----------------------------
+// Дешифрование токена (сдвиг +3)
+// -----------------------------
 function decryptToken(encryptedToken) {
     let decrypted = "";
     for (const char of encryptedToken) {
@@ -15,56 +17,58 @@ function decryptToken(encryptedToken) {
     return decrypted;
 }
 
-// Зашифрованный токен
-const API_KEY = 'ph-molg-0DwaUjhw8V4Z0JE3uX6C44TSnDLCVNpCqQ1tMc7dnIHj3b_ysTdJps7NLetSBUUykWLIlJHkb0Q0YiyhCGdeXbsyqY98F07l72_iKEkg1GBrrsZXKEoCW3CiPPEnH2sTKD9jMCPisTeAC9M2Wriics_d4vzX';
+// -----------------------------
+// Твой зашифрованный Gemini API-ключ
+// -----------------------------
+const GEMINI_API_KEY_ENC = "FxwXTvZ5TzZjaaar0TYIYxdCOxDQjpzEq652nDX";
 
-// Дешифруем токен
-const decryptedAPIKey = decryptToken(API_KEY);
+// Расшифрованный
+const geminiApiKey = decryptToken(GEMINI_API_KEY_ENC);
 
+// -----------------------------
 const errorMapping = {
     400: "Неправильный запрос. Проверьте данные, отправленные на сервер.",
     401: "Неавторизованный запрос. Проверьте API ключ.",
-    403: "Запрещено. У вас нет доступа к запрашиваемой модели.",
-    404: "Запрашиваемый ресурс не найден. Проверьте URL и модель.",
-    429: "Превышен лимит запросов. Попробуйте позже.",
-    500: "Ошибка сервера. Попробуйте снова через некоторое время.",
-    502: "Ошибка шлюза. Проблемы с сервером API.",
-    503: "Сервис недоступен. Попробуйте снова позже.",
-    504: "Время ожидания истекло. Сервер не ответил вовремя."
+    403: "Доступ запрещён. Проверьте модель или ключ.",
+    404: "Модель или ресурс не найден.",
+    429: "Слишком много запросов. Подождите немного.",
+    500: "Ошибка сервера Gemini.",
+    503: "Сервис временно недоступен."
 };
 
+// -----------------------------
 const textarea = document.getElementById("user-input");
 const sendButton = document.getElementById("send-button");
 const chatContainer = document.getElementById("chat-container");
 const messageContainer = document.getElementById("message-container");
-const chatHistory = []; // Массив для хранения диалога
 
+const chatHistory = []; // хранит всю историю (как требует Gemini)
 
-// Показываем первое сообщение от бота
+// Приветствие
 window.onload = () => {
     displayMessage("Чат-бот «ISAKONOEVICH» приветствует вас!", false);
 };
 
-// Изменяем цвет кнопки в зависимости от наличия текста
+// -----------------------------
+// Цвет кнопки
+// -----------------------------
 textarea.addEventListener("input", () => {
-    if (textarea.value.trim() !== "") {
-        sendButton.style.backgroundColor = "#4CAF50"; // Цвет кнопки при наличии текста
-    } else {
-        sendButton.style.backgroundColor = "#ccc"; // Цвет кнопки, если текста нет
-    }
+    sendButton.style.backgroundColor = textarea.value.trim() ? "#4CAF50" : "#ccc";
 });
 
-// Обработчик события на нажатие клавиши в текстовом поле
+// Отправка по Enter
 textarea.addEventListener("keypress", (event) => {
     if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault(); // Предотвращаем переход на новую строку
-        sendMessage(); // Вызываем функцию отправки сообщения
+        event.preventDefault();
+        sendMessage();
     }
 });
 
 sendButton.addEventListener("click", sendMessage);
 
-
+// -----------------------------
+// Индикатор "печатает..."
+// -----------------------------
 let typingIndicator;
 
 function showTyping() {
@@ -72,7 +76,6 @@ function showTyping() {
     typingIndicator.className = "message bot-message visible";
     typingIndicator.innerHTML = `<div class="loader"></div>`;
     messageContainer.appendChild(typingIndicator);
-
     smoothScrollToBottom(messageContainer);
 }
 
@@ -83,96 +86,110 @@ function hideTyping() {
     }
 }
 
+// -----------------------------
+// Основная функция отправки
+// -----------------------------
 async function sendMessage() {
     const userInput = textarea.value.trim();
-    if (userInput === "") return;
+    if (!userInput) return;
 
     chatContainer.classList.add("expanded");
-    displayMessage(userInput, true); // сообщение пользователя
+
+    displayMessage(userInput, true);
     textarea.value = "";
     sendButton.style.backgroundColor = "#ccc";
 
-    chatHistory.push({ role: 'user', content: userInput }); // добавляем в историю
+    // Добавляем в историю (в формате Gemini)
+    chatHistory.push({
+        role: "user",
+        parts: [{ text: userInput }]
+    });
 
-    showTyping(); // показываем "печатает..."
+    showTyping();
 
     try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${decryptedAPIKey}`
-            },
-            body: JSON.stringify({
-                model: 'gpt-3.5-turbo-1106',
-                messages: chatHistory,
+        const body = {
+            contents: chatHistory,
+            generationConfig: {
                 temperature: 0.7
-            })
-        });
+            }
+        };
 
-        hideTyping(); // скрываем индикатор
+        const response = await fetch(
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-goog-api-key": geminiApiKey
+                },
+                body: JSON.stringify(body)
+            }
+        );
+
+        hideTyping();
 
         if (!response.ok) {
-            const errorMessage = errorMapping[response.status] || "Неизвестная ошибка. Попробуйте позже.";
-            displayMessage(errorMessage);
+            const err = errorMapping[response.status] || "Неизвестная ошибка Gemini.";
+            displayMessage(err);
             return;
         }
 
         const data = await response.json();
-        const botReply = data.choices[0].message.content;
+
+        const botReply =
+            data.candidates?.[0]?.content?.parts
+                ?.map(p => p.text)
+                .join("") || "Пустой ответ от модели.";
+
         displayMessage(botReply);
 
-        chatHistory.push({ role: 'assistant', content: botReply }); // сохраняем ответ бота
+        // Добавляем ответ бота в историю
+        chatHistory.push({
+            role: "model",
+            parts: [{ text: botReply }]
+        });
 
     } catch (error) {
         hideTyping();
-        console.error('Ошибка при выполнении запроса:', error.message);
-        displayMessage("Произошла ошибка при обработке запроса.");
+        console.error("Ошибка запроса Gemini:", error);
+        displayMessage("Произошла ошибка при обращении к Gemini API.");
     }
 }
 
-
-
+// -----------------------------
+// Вспомогательные функции UI
+// -----------------------------
 function smoothScrollToBottom(container) {
     const targetScroll = container.scrollHeight;
-    const currentScroll = container.scrollTop;
-    const distance = targetScroll - currentScroll;
-    const duration = 1200; // Длительность анимации в миллисекундах
+    const startScroll = container.scrollTop;
+    const distance = targetScroll - startScroll;
+    const duration = 1200;
     const startTime = performance.now();
 
-    function scroll() {
-        const currentTime = performance.now();
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1); // Нормализуем значение
+    function animate() {
+        const now = performance.now();
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
 
-        // Применяем функцию easing
-        container.scrollTop = currentScroll + distance * easeInOutQuad(progress);
+        container.scrollTop = startScroll + distance * ease;
 
-        if (progress < 1) {
-            requestAnimationFrame(scroll);
-        }
+        if (progress < 1) requestAnimationFrame(animate);
     }
 
-    function easeInOutQuad(t) {
-        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; // Easing функция
-    }
-
-    requestAnimationFrame(scroll);
+    requestAnimationFrame(animate);
 }
 
 function displayMessage(content, isUserMessage = false) {
-    const messageElement = document.createElement("div");
-    messageElement.className = `message ${isUserMessage ? "user-message" : "bot-message"}`;
-    messageElement.innerText = content;
+    const msg = document.createElement("div");
+    msg.className = `message ${isUserMessage ? "user-message" : "bot-message"}`;
+    msg.innerText = content;
 
-    // Добавление сообщения в контейнер
-    messageContainer.appendChild(messageElement);
+    messageContainer.appendChild(msg);
 
-    // Плавное появление сообщения
     setTimeout(() => {
-        messageElement.classList.add("visible");
-
-        // Плавная прокрутка к последнему сообщению
+        msg.classList.add("visible");
         smoothScrollToBottom(messageContainer);
-    }, 10); // Небольшая задержка для активации перехода
+    }, 10);
 }
