@@ -20,7 +20,7 @@ function decryptToken(encryptedToken) {
 // -----------------------------
 // Твой зашифрованный Gemini API-ключ
 // -----------------------------
-const GEMINI_API_KEY_ENC = "FxwXTvZ5TzZjaaar0TYIYxdCOxDQjpzEq652nDX";
+const GEMINI_API_KEY_ENC = "DxwWp9Z5WxWjahhq7SZHYnAQOzATgpxBn652kBU";
 
 // Расшифрованный
 const geminiApiKey = decryptToken(GEMINI_API_KEY_ENC);
