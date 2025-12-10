@@ -113,17 +113,19 @@ async function sendMessage() {
             temperature: 0.7
         };
 
-
+        const response = await fetch(
+            "https://api.arli.ai/v1/chat/completions",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${arliApiKey}`
+                },
+                body: JSON.stringify(body)
+            }
+        );
 		
-		const response = await fetch("isakonoevichai.itismynickname9.workers.dev", {
-		  method: "POST",
-		  headers: {
-			"Content-Type": "application/json",
-			"Authorization": `Bearer ${arliApiKey}`
-		  },
-		  body: JSON.stringify(body)
-		});
-
+		
 
         hideTyping();
 
