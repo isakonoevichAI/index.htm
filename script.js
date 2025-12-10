@@ -18,21 +18,21 @@ function decryptToken(encryptedToken) {
 }
 
 // -----------------------------
-// Твой зашифрованный Gemini API-ключ
+// Зашифрованный Arli API ключ
 // -----------------------------
-const GEMINI_API_KEY_ENC = "XFwxPvZ5T7ZjaCra0TYIGxHcDODWjpfEw652nDX";
+const ARLI_API_KEY_ENC = "686cby5z-78y8-1366-6y63-12815a6z947c";
 
-// Расшифрованный
-const geminiApiKey = decryptToken(GEMINI_API_KEY_ENC);
+// Расшифрованный ключ
+const arliApiKey = decryptToken(ARLI_API_KEY_ENC);
 
 // -----------------------------
 const errorMapping = {
-    400: "Неправильный запрос. Проверьте данные, отправленные на сервер.",
-    401: "Неавторизованный запрос. Проверьте API ключ.",
-    403: "Доступ запрещён. Проверьте модель или ключ.",
-    404: "Модель или ресурс не найден.",
-    429: "Слишком много запросов. Подождите немного.",
-    500: "Ошибка сервера Gemini.",
+    400: "Неправильный запрос. Проверьте данные.",
+    401: "Неавторизовано. Убедитесь в правильности API ключа.",
+    403: "Доступ запрещён.",
+    404: "Модель не найдена.",
+    429: "Слишком много запросов.",
+    500: "Ошибка сервера Arli.",
     503: "Сервис временно недоступен."
 };
 
@@ -42,9 +42,8 @@ const sendButton = document.getElementById("send-button");
 const chatContainer = document.getElementById("chat-container");
 const messageContainer = document.getElementById("message-container");
 
-const chatHistory = []; // хранит всю историю (как требует Gemini)
+const chatHistory = []; // история в формате OpenAI (Arli)
 
-// Приветствие
 window.onload = () => {
     displayMessage("Чат-бот «ISAKONOEVICH» приветствует вас!", false);
 };
@@ -87,7 +86,7 @@ function hideTyping() {
 }
 
 // -----------------------------
-// Основная функция отправки
+// Основная функция
 // -----------------------------
 async function sendMessage() {
     const userInput = textarea.value.trim();
@@ -99,38 +98,37 @@ async function sendMessage() {
     textarea.value = "";
     sendButton.style.backgroundColor = "#ccc";
 
-    // Добавляем в историю (в формате Gemini)
+    // Добавляем в историю (формат OpenAI/Arli)
     chatHistory.push({
         role: "user",
-        parts: [{ text: userInput }]
+        content: userInput
     });
 
     showTyping();
 
     try {
         const body = {
-            contents: chatHistory,
-            generationConfig: {
-                temperature: 0.7
-            }
+            model: "arli-7b", // или любая другая доступная модель
+            messages: chatHistory,
+            temperature: 0.7
         };
 
-        const response = await fetch(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-goog-api-key": geminiApiKey
-                },
-                body: JSON.stringify(body)
-            }
-        );
+
+		
+		const response = await fetch("isakonoevichai.itismynickname9.workers.dev", {
+		  method: "POST",
+		  headers: {
+			"Content-Type": "application/json",
+			"Authorization": `Bearer ${arliApiKey}`
+		  },
+		  body: JSON.stringify(body)
+		});
+
 
         hideTyping();
 
         if (!response.ok) {
-            const err = errorMapping[response.status] || "Неизвестная ошибка Gemini.";
+            const err = errorMapping[response.status] || "Неизвестная ошибка Arli.";
             displayMessage(err);
             return;
         }
@@ -138,27 +136,25 @@ async function sendMessage() {
         const data = await response.json();
 
         const botReply =
-            data.candidates?.[0]?.content?.parts
-                ?.map(p => p.text)
-                .join("") || "Пустой ответ от модели.";
+            data.choices?.[0]?.message?.content || "Пустой ответ от Arli.";
 
         displayMessage(botReply);
 
-        // Добавляем ответ бота в историю
+        // Добавляем ответ бота
         chatHistory.push({
-            role: "model",
-            parts: [{ text: botReply }]
+            role: "assistant",
+            content: botReply
         });
 
     } catch (error) {
         hideTyping();
-        console.error("Ошибка запроса Gemini:", error);
-        displayMessage("Произошла ошибка при обращении к Gemini API.");
+        console.error("Ошибка запроса Arli:", error);
+        displayMessage("Ошибка при обращении к Arli API.");
     }
 }
 
 // -----------------------------
-// Вспомогательные функции UI
+// UI функции
 // -----------------------------
 function smoothScrollToBottom(container) {
     const targetScroll = container.scrollHeight;
@@ -185,7 +181,6 @@ function displayMessage(content, isUserMessage = false) {
     const msg = document.createElement("div");
     msg.className = `message ${isUserMessage ? "user-message" : "bot-message"}`;
 
-    // Парсим markdown в HTML
     msg.innerHTML = marked.parse(content);
 
     messageContainer.appendChild(msg);
