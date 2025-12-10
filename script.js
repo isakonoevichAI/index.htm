@@ -108,23 +108,25 @@ async function sendMessage() {
 
     try {
         const body = {
-            model: "arli-7b", // или любая другая доступная модель
-            messages: chatHistory,
-            temperature: 0.7
-        };
+		  model: "Gemma-3-27B-it",
+		  messages: chatHistory,
+		  repetition_penalty: 1.1,
+		  temperature: 0.7,
+		  top_p: 0.9,
+		  top_k: 40,
+		  max_completion_tokens: 1024,
+		  stream: false
+		};
 
-        const response = await fetch(
-            "https://api.arli.ai/v1/chat/completions",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${arliApiKey}`
-                },
-                body: JSON.stringify(body)
-            }
-        );
-		
+		const response = await fetch("https://isakonoevichai.itismynickname9.workers.dev/", {
+		  method: "POST",
+		  headers: {
+			"Content-Type": "application/json" // токен уже внутри Worker
+		  },
+		  body: JSON.stringify(body)
+		});
+
+				
 		
 
         hideTyping();
